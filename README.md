@@ -1,5 +1,9 @@
 # Installation
 
+## Install g++
+Install gcc on your machine. Example:
+`brew install [flags] gcc48`
+
 ## Install opencv2
 
 ```
@@ -12,7 +16,7 @@ brew install opencv
 
 - Go to the project folder
 - Compile: `make main`
-- Run: `./main <image folder>`.
+- Run: `./main <images folder>`.
 
 Example:
 `./main database/ams`
