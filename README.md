@@ -1,4 +1,6 @@
-# Install opencv2
+# Installation
+
+## Install opencv2
 
 ```
 brew update
@@ -6,14 +8,15 @@ brew tap homebrew/science
 brew install opencv
 ```
 
-# Link opencv2 to python
-```
-cd /Library/Python/2.7/site-packages/
-sudo ln -s /usr/local/Cellar/opencv/2.4.9/lib/python2.7/site-packages/cv.py cv.py
-sudo ln -s /usr/local/Cellar/opencv/2.4.9/lib/python2.7/site-packages/cv2.so cv2.so
-```
+# Usage
 
-# Install opencv3
-```
-brew install opencv3 --with-contrib
-```
+- Go to the project folder
+- Compile: `make main`
+- Run: `./main <image folder>`.
+
+Example:
+`./main database/ams`
+
+This will load all images inside the `database/ams` folder and apply the median stack filter. A window will be displayed with the result.
+
+The code is prepared for color images, but its main function can be easialy modified to work with grayscale images.

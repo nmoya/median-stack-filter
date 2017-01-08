@@ -5,20 +5,9 @@
 using namespace cv;
 using namespace std;
 
-/* Create a displacement vector to access the adjacent pixels. An
- adjacent pixel q is computed with:
- q = p + displacement
-*/
-vector<Point> create_adjacency4() {
-  vector<Point> adjacency;
-  adjacency.push_back(Point(0, 0));
-  adjacency.push_back(Point(1, 0));
-  adjacency.push_back(Point(0, -1));
-  adjacency.push_back(Point(-1, 0));
-  adjacency.push_back(Point(0, 1));
-  return adjacency;
-}
-
+// Create a displacement vector to access the adjacent pixels. An
+// adjacent pixel q is computed by:
+// q = p + displacement
 vector<Point> create_adjacency8() {
   vector<Point> adjacency;
   adjacency.push_back(Point(0, 0));
@@ -33,24 +22,16 @@ vector<Point> create_adjacency8() {
   return adjacency;
 }
 
+// Returns whether a point p is inside the image domain
 bool valid_point(const Mat img, const Point p) {
   Rect r = Rect(0, 0, img.cols, img.rows);
   return p.inside(r);
 }
 
-int point_to_index(const Point p1, const Size s) {
-  return (p1.y * s.width) + p1.x;
-}
-
-Point index_to_point(const int index, const Size s) {
-  int x, y;
-  x = (index % (s.width * s.height)) % s.width;
-  y = (index % (s.width * s.height)) / s.width;
-  return Point(x, y);
-}
-
+// Sort function between two integers
 bool sortFn(int i, int j) { return (i < j); }
 
+// Given a sorted array, returns the median value
 float median(vector<int> values) {
   int middle = (int)(values.size() / 2) - 1;
   if (values.size() % 2 == 0) {
@@ -60,16 +41,17 @@ float median(vector<int> values) {
   }
 }
 
+// Wrapper function around median to ensure the array is sorted
 int median_filter(vector<int> values) {
   sort(values.begin(), values.end(), sortFn); // in-place sort
   return (int)median(values);
 }
 
-// Same as medianBlur(mat, 3) from opencv
+// Same as medianBlur(mat, 3) from opencv (educational purposes only)
 Mat my_median_filter(const Mat image) {
   CV_Assert(image.depth() == CV_8U);
   vector<Point> adjacents = create_adjacency8();
-  vector<int> kernel_values;
+  vector<int> adjacency_values;
   Mat filtered = Mat::zeros(image.size(), CV_8U);
   Point p, q;
   int i, j, k;
@@ -77,37 +59,20 @@ Mat my_median_filter(const Mat image) {
   for (i = 0; i < image.rows; i++) {
     for (j = 0; j < image.cols; j++) {
       p = Point(j, i);
-      kernel_values.clear();
+      adjacency_values.clear();
       for (k = 0; k < adjacents.size(); k++) {
         q = p + adjacents[k];
         if (valid_point(image, q)) {
-          kernel_values.push_back(image.at<uchar>(q));
+          adjacency_values.push_back(image.at<uchar>(q));
         }
       }
-      filtered.at<uchar>(p) = median_filter(kernel_values);
+      filtered.at<uchar>(p) = median_filter(adjacency_values);
     }
   }
   return filtered;
 }
 
-int test() {
-  vector<int> v;
-  for (int i = 8; i >= 1; i--) {
-    v.push_back(i);
-  }
-  sort(v.begin(), v.end(), sortFn);
-  for (int i = 0; i < v.size(); i++) {
-    if (i + 1 < v.size()) {
-      CV_Assert(v[i] <= v[i + 1]);
-    }
-  }
-  CV_Assert(median(v) == 4.5);
-  v.erase(v.begin());
-  CV_Assert(median(v) == 4);
-
-  return 0;
-}
-
+// median_stack function for grayscale images
 Mat median_stack(vector<Mat> imgs) {
   CV_Assert(imgs[0].channels() == 1);
   int rows = imgs[0].rows;
@@ -129,6 +94,7 @@ Mat median_stack(vector<Mat> imgs) {
   return output;
 }
 
+// median stack function for color images
 Mat median_stack_color(vector<Mat> imgs) {
   int rows = imgs[0].rows;
   int cols = imgs[0].cols;
@@ -169,6 +135,7 @@ int main(int argc, char **argv) {
       break;
     }
     cvtColor(img, img, CV_BGR2HSV);
+    // comment the line below for original image size output
     resize(img, img, Size(1024, 768), 0, 0, INTER_LINEAR);
     imgs.push_back(img);
   }
@@ -177,5 +144,5 @@ int main(int argc, char **argv) {
   imshow("Media stack color", filteredCvtImage);
 
   waitKey();
-  return test();
+  return 0;
 }
